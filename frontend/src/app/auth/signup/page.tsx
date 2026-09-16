@@ -1,210 +1,167 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
-export default function AcceptInvitePage() {
+export default function SignUpPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const invitedEmail = searchParams.get('email') ?? 'analyst@finguard.com';
-  const invitedRole = searchParams.get('role') === 'ADMIN' ? 'Administrator' : 'Fraud analyst';
-
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    preferredCurrency: 'USD',
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [acknowledged, setAcknowledged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDone, setIsDone] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState('');
 
-  const validate = (): boolean => {
-    const next: Record<string, string> = {};
-
-    if (!name.trim()) {
-      next.name = 'Enter your full name.';
-    }
-
-    if (!password) {
-      next.password = 'Choose a password.';
-    } else if (password.length < 8) {
-      next.password = 'Use at least 8 characters.';
-    }
-
-    if (confirmPassword !== password) {
-      next.confirmPassword = 'Passwords don’t match.';
-    }
-
-    if (!acknowledged) {
-      next.acknowledged = 'Confirm before activating your account.';
-    }
-
-    setErrors(next);
-    return Object.keys(next).length === 0;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
 
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    setIsLoading(false);
-    setIsDone(true);
 
-    setTimeout(() => router.push('/auth/signin'), 1400);
+    try {
+      // මෙතැනට ඔයාගේ Register API කෝල් එක දාන්න පුළුවන්
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      router.push('/auth/signin');
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (isDone) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0B1120] text-[#E8ECF3]">
-        <div className="flex flex-col items-center text-center px-8">
-          <CheckCircle2 className="w-8 h-8 text-[#E3A008]" strokeWidth={2} />
-          <h2 className="mt-4 text-[18px] font-semibold">Account activated</h2>
-          <p className="mt-1.5 text-[14px] text-[#8B96AC]">Redirecting you to sign in…</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen bg-[#0B1120] text-[#E8ECF3]">
-      <div className="hidden lg:flex lg:w-[42%] relative flex-col justify-between p-12 bg-[#0B1120] border-r border-[#1F2A44] overflow-hidden">
-        <svg className="absolute inset-0 w-full h-full opacity-[0.07]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="1" fill="#E8ECF3" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-
-        <div className="relative flex items-center gap-2.5">
-          <ShieldCheck className="w-5 h-5 text-[#E3A008]" strokeWidth={2.25} />
-          <span className="text-[15px] font-semibold tracking-tight">FinGuard</span>
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white text-gray-900">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center">
+          <div className="rounded-full bg-blue-50 p-3 border border-blue-100 shadow-sm">
+            <ShieldCheck className="h-8 w-8 text-blue-600" strokeWidth={2.25} />
+          </div>
         </div>
-
-        <div className="relative">
-          <h1 className="text-[28px] leading-[1.25] font-semibold max-w-[22ch]">
-            You&apos;ve been added to the review team.
-          </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-[#8B96AC] max-w-[38ch]">
-            Set a password to activate your account and start reviewing flagged transactions.
-          </p>
-        </div>
-
-        <div className="relative flex items-center gap-2 text-[13px] font-mono text-[#8B96AC]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#E3A008]" />
-          Invite verified
-        </div>
+        <h2 className="mt-5 text-center text-[26px] font-bold tracking-tight text-gray-900">
+          Create a new account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Or{' '}
+          <Link
+            href="/auth/signin"
+            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+          >
+            sign in to your account
+          </Link>
+        </p>
       </div>
 
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="w-full max-w-[380px]">
-          <div className="mb-8 lg:hidden flex items-center gap-2.5">
-            <ShieldCheck className="w-5 h-5 text-[#E3A008]" strokeWidth={2.25} />
-            <span className="text-[15px] font-semibold tracking-tight">FinGuard</span>
-          </div>
-
-          <h2 className="text-[22px] font-semibold">Activate your account</h2>
-          <p className="mt-1.5 text-[14px] text-[#8B96AC]">
-            Invited as <span className="text-[#E8ECF3]">{invitedRole}</span>
-          </p>
-
-          {errors.form && (
-            <div className="mt-5 px-3.5 py-2.5 rounded-md bg-[#2A1610] border border-[#5C2E1A] text-[13px] text-[#F0A875]">
-              {errors.form}
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[420px] px-4">
+        <div className="bg-white py-8 px-6 shadow-xl shadow-gray-100 border border-gray-100 rounded-2xl sm:px-10">
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm" role="alert">
+              <span className="block sm:inline">{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-[13px] text-[#8B96AC] mb-1.5">Email</label>
-              <input
-                type="email"
-                value={invitedEmail}
-                disabled
-                className="w-full px-3.5 py-2.5 bg-[#0A0F1C] border border-[#1F2A44] rounded-md text-[14px] text-[#8B96AC] cursor-not-allowed"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="name" className="block text-[13px] text-[#8B96AC] mb-1.5">
-                Full name
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
+                Full Name
               </label>
               <input
                 id="name"
+                name="name"
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Jane Cooper"
-                className="w-full px-3.5 py-2.5 bg-[#0F1626] border border-[#1F2A44] rounded-md text-[14px] text-[#E8ECF3] placeholder-[#4B5468] focus:outline-none focus:border-[#E3A008] focus:ring-1 focus:ring-[#E3A008] transition-colors"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="John Doe"
+                className="w-full px-3.5 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/10 transition-all"
               />
-              {errors.name && <p className="mt-1.5 text-[12.5px] text-[#F0A875]">{errors.name}</p>}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-[13px] text-[#8B96AC] mb-1.5">
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className="w-full px-3.5 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/10 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
                 Password
               </label>
               <div className="relative">
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 8 characters"
-                  className="w-full px-3.5 py-2.5 bg-[#0F1626] border border-[#1F2A44] rounded-md text-[14px] text-[#E8ECF3] placeholder-[#4B5468] focus:outline-none focus:border-[#E3A008] focus:ring-1 focus:ring-[#E3A008] transition-colors pr-10"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/10 transition-all pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B96AC] hover:text-[#E8ECF3] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.password && <p className="mt-1.5 text-[12.5px] text-[#F0A875]">{errors.password}</p>}
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-[13px] text-[#8B96AC] mb-1.5">
-                Confirm password
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
+                Confirm Password
               </label>
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type={showPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Re-enter your password"
-                className="w-full px-3.5 py-2.5 bg-[#0F1626] border border-[#1F2A44] rounded-md text-[14px] text-[#E8ECF3] placeholder-[#4B5468] focus:outline-none focus:border-[#E3A008] focus:ring-1 focus:ring-[#E3A008] transition-colors"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full px-3.5 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/10 transition-all"
               />
-              {errors.confirmPassword && (
-                <p className="mt-1.5 text-[12.5px] text-[#F0A875]">{errors.confirmPassword}</p>
-              )}
             </div>
 
-            <label className="flex items-start gap-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={acknowledged}
-                onChange={(e) => setAcknowledged(e.target.checked)}
-                className="mt-0.5 w-4 h-4 rounded border-[#1F2A44] bg-[#0F1626] accent-[#E3A008]"
-              />
-              <span className="text-[13px] leading-relaxed text-[#8B96AC]">
-                I understand all review decisions I make are recorded in the audit log.
-              </span>
-            </label>
-            {errors.acknowledged && <p className="text-[12.5px] text-[#F0A875]">{errors.acknowledged}</p>}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 mt-2 bg-[#E3A008] hover:bg-[#CC9007] disabled:opacity-60 disabled:cursor-not-allowed rounded-md text-[14px] font-semibold text-[#0B1120] transition-colors"
-            >
-              {isLoading ? 'Activating…' : 'Activate account'}
-            </button>
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed rounded-xl text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all"
+              >
+                {isLoading ? 'Creating account...' : 'Sign up'}
+              </button>
+            </div>
           </form>
         </div>
       </div>
