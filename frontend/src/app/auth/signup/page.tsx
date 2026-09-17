@@ -1,18 +1,20 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { showToast } from 'nextjs-toast-notify';
 
 export default function SignUpPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    preferredCurrency: 'USD',
+    role: 'ANALYST', // හෝ ඔබේ ඇප් එකට ගැලපෙන Default Role එකක්
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,11 +40,45 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      // මෙතැනට ඔයාගේ Register API කෝල් එක දාන්න පුළුවන්
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Go Backend API එකට රික්වෙස්ට් එක යැවීම
+      const response = await fetch('http://localhost:8080/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Could not create user');
+      }
+
+      showToast.success('Account created successfully!', {
+        duration: 3000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceIn",
+        sound: true,
+      });
+
       router.push('/auth/signin');
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
+      showToast.error(err.message || 'Something went wrong', {
+        duration: 3000,
+        progress: true,
+        position: "top-right",
+        transition: "bounceIn",
+        sound: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -79,20 +115,37 @@ export default function SignUpPage() {
           )}
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="John Doe"
-                className="w-full px-3.5 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/10 transition-all"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  required
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="John"
+                  className="w-full px-3.5 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/10 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Doe"
+                  className="w-full px-3.5 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600/10 transition-all"
+                />
+              </div>
             </div>
 
             <div>

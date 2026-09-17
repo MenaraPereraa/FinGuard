@@ -1,32 +1,50 @@
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
 
-# Test binary, built with `go test -c`
-*.test
 
-# Code coverage profiles and other test artifacts
-*.out
-coverage.*
-*.coverprofile
-profile.cov
+# --- OS & IDE Generated Files ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.pem
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# --- Backend (Go / FinGuard API) ---
+backend/*.exe
+backend/*.exe~
+backend/*.dll
+backend/*.so
+backend/*.dylib
+backend/*.test
+backend/*.out
+backend/coverage.*
+backend/*.coverprofile
+backend/profile.cov
+backend/go.work
+backend/go.work.sum
+backend/.env
+backend/bin/
+backend/vendor/
 
-# Go workspace file
-go.work
-go.work.sum
+# --- Frontend (Next.js / Node.js) ---
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.*
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/versions
+frontend/coverage/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env*
+!frontend/.env.example
+frontend/.vercel
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
 
-# env file
-.env
-
-# Editor/IDE
-# .idea/
-# .vscode/
+# --- Debug & Error Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*

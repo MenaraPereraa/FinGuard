@@ -53,7 +53,6 @@ export default function SignInPage() {
         progress: true,
         position: "top-right",
         transition: "bounceIn",
-        icon: '',
         sound: true,
       });
     } else {
@@ -71,7 +70,6 @@ export default function SignInPage() {
         progress: true,
         position: "top-right",
         transition: "bounceIn",
-        icon: '',
         sound: true,
       });
       setIsLoading(false);
@@ -118,7 +116,7 @@ export default function SignInPage() {
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="email"
+                autoComplete="off"
                 required
                 value={formData.email}
                 onChange={handleChange}
@@ -136,7 +134,7 @@ export default function SignInPage() {
                   id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
+                  autoComplete="off"
                   required
                   value={formData.password}
                   onChange={handleChange}
